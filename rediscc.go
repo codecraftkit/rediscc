@@ -33,28 +33,28 @@ type RedisDataStore struct {
 
 func (redisDataStore *RedisDataStore) Publish(ctx context.Context, channel string, payload interface{}) error {
 	if redisDataStore.Debug {
-		fmt.Println("Publish", channel, payload)
+		fmt.Println("[LOG] Publish", channel, payload)
 	}
 	return redisDataStore.client.Publish(ctx, channel, payload).Err()
 }
 
 func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) *redis.StringCmd {
 	if redisDataStore.Debug {
-		fmt.Println("Get", key)
+		fmt.Println("[LOG] Get", key)
 	}
 	return redisDataStore.client.Get(ctx, key)
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if redisDataStore.Debug {
-		fmt.Println("Set", key, value, expiration)
+		fmt.Println("[LOG] Set", key, value, expiration)
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
 }
 
 func (redisDataStore *RedisDataStore) SetWithExpiration(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if redisDataStore.Debug {
-		fmt.Println("SetWithExpiration", key, value, expiration)
+		fmt.Println("[LOG] SetWithExpiration", key, value, expiration)
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
 }
