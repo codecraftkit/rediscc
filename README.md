@@ -28,35 +28,7 @@ import (
 
 func main() {
 
-	MyRedisDbDataStore := rediscc.RedisDataStore{}
-	
-	if err := rediscc.Connect("mongodb://localhost:27017", "my_db", &MyRedisDbDataStore); err != nil {
-		panic(err)
-	}
-
-	// Collection
-	MyCollection := MyRedisDbDataStore.DB.Collection("users")
-
-	type User struct {
-		ID    string `bson:"_id,omitempty"`
-		Email string `bson:"email"`
-		Name  string `bson:"name"`
-	}
-
-	// Insert
-	_, err := MyCollection.InsertOne(context.Background(), bson.M{"_id": "asdqwe123", "name": "John Doe", "email": "johndoe@example.com"})
-	if err != nil {
-		panic(err)
-	}
-
-	// Find
-	var user User
-	err = MyCollection.FindOne(context.Background(), bson.M{"_id": "asdqwe123"}).Decode(&user)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(user)
+	//TODO
 	
 }
 ```
