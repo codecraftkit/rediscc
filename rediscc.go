@@ -47,6 +47,7 @@ func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) *redi
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if redisDataStore.Debug {
+		fmt.Println("[Redis Client]", redisDataStore.client)
 		fmt.Println("[LOG] Set", key, value, expiration)
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
@@ -57,15 +58,4 @@ func (redisDataStore *RedisDataStore) SetWithExpiration(ctx context.Context, key
 		fmt.Println("[LOG] SetWithExpiration", key, value, expiration)
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
-}
-
-func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) error {
-	if redisDataStore.Debug {
-		fmt.Println("[LOG] Del", channel)
-	}
-	_, err := redisDataStore.client.Del(ctx, channel).Result()
-	if err != nil {
-		return err
-	}
-	return nil
 }
