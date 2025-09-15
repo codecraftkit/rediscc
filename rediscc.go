@@ -59,3 +59,14 @@ func (redisDataStore *RedisDataStore) SetWithExpiration(ctx context.Context, key
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
 }
+
+func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) error {
+	if redisDataStore.Debug {
+		fmt.Println("[LOG] Del", channel)
+	}
+	_, err := redisDataStore.client.Del(ctx, channel).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
