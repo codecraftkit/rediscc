@@ -38,11 +38,15 @@ func (redisDataStore *RedisDataStore) Publish(ctx context.Context, channel strin
 	return redisDataStore.client.Publish(ctx, channel, payload).Err()
 }
 
-func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) *redis.StringCmd {
+func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (string, error) {
 	if redisDataStore.Debug {
 		fmt.Println("[LOG] Get", key)
 	}
-	return redisDataStore.client.Get(ctx, key)
+	value, err := redisDataStore.client.Get(ctx, key).Result()
+	if err != nil {
+		return "", err
+	}
+	return value, nil
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
