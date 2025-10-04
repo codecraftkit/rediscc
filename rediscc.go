@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Connect(redisUri string, dbNumber string) (*RedisDataStore, error) {
+func Connect(redisUri string, dbNumber string, options *RedisOptions) (*RedisDataStore, error) {
 	redisUrl := fmt.Sprintf("%s/%s", redisUri, dbNumber)
 	opt, err := redis.ParseURL(redisUrl)
 	if err != nil {
@@ -19,27 +19,25 @@ func Connect(redisUri string, dbNumber string) (*RedisDataStore, error) {
 	fmt.Printf("You successfully connected to Redis: %s\n", redisUrl)
 
 	redisDataStore := &RedisDataStore{
-		client: client,
-		Debug:  true,
+		client:  client,
+		options: options,
 	}
 
 	return redisDataStore, nil
 }
 
-type RedisDataStore struct {
-	client *redis.Client
-	Debug  bool
-}
-
 func (redisDataStore *RedisDataStore) Publish(ctx context.Context, channel string, payload interface{}) error {
-	if redisDataStore.Debug {
-		fmt.Println("[LOG] Publish", channel, payload)
+	if redisDataStore.options.Debug {
+		fmt.Println("[LOG] Publish", channel)
+	}
+	if redisDataStore.options.DebugPayload {
+		fmt.Println("[LOG] Payload", payload)
 	}
 	return redisDataStore.client.Publish(ctx, channel, payload).Err()
 }
 
 func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (string, error) {
-	if redisDataStore.Debug {
+	if redisDataStore.options.Debug {
 		fmt.Println("[LOG] Get", key)
 	}
 	value, err := redisDataStore.client.Get(ctx, key).Result()
@@ -50,7 +48,7 @@ func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (stri
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	if redisDataStore.Debug {
+	if redisDataStore.options.Debug {
 		fmt.Println("[Redis Client]", redisDataStore.client)
 		fmt.Println("[LOG] Set", key, value, expiration)
 	}
@@ -58,14 +56,14 @@ func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value
 }
 
 func (redisDataStore *RedisDataStore) SetWithExpiration(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	if redisDataStore.Debug {
+	if redisDataStore.options.Debug {
 		fmt.Println("[LOG] SetWithExpiration", key, value, expiration)
 	}
 	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
 }
 
 func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) error {
-	if redisDataStore.Debug {
+	if redisDataStore.options.Debug {
 		fmt.Println("[LOG] Del", channel)
 	}
 	_, err := redisDataStore.client.Del(ctx, channel).Result()
