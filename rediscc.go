@@ -18,6 +18,10 @@ func Connect(redisUri string, dbNumber string, options *RedisOptions) (*RedisDat
 
 	fmt.Printf("You successfully connected to Redis: %s\n", redisUrl)
 
+	if options == nil {
+		options = &RedisOptions{}
+	}
+
 	redisDataStore := &RedisDataStore{
 		client:  client,
 		options: options,
