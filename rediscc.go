@@ -76,3 +76,14 @@ func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) e
 	}
 	return nil
 }
+
+func (redisDataStore *RedisDataStore) Keys(ctx context.Context, pattern string) ([]string, error) {
+	if redisDataStore.options.Debug {
+		fmt.Println("[LOG] Keys", pattern)
+	}
+	keys, err := redisDataStore.client.Keys(ctx, pattern).Result()
+	if err != nil {
+		return nil, err
+	}
+	return keys, nil
+}
