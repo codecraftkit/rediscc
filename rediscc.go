@@ -3,8 +3,9 @@ package rediscc
 import (
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 func Connect(redisUri string, dbNumber string, options *RedisOptions) (*RedisDataStore, error) {
@@ -49,6 +50,13 @@ func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (stri
 		return "", err
 	}
 	return value, nil
+}
+
+func (redisDataStore *RedisDataStore) GetRaw(ctx context.Context, key string) *redis.StringCmd {
+	if redisDataStore.options.Debug {
+		fmt.Println("[LOG] GetRaw", key)
+	}
+	return redisDataStore.client.Get(ctx, key)
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
