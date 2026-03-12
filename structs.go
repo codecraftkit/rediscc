@@ -8,6 +8,6 @@ type RedisOptions struct {
 }
 
 type RedisDataStore struct {
-	client  *redis.Client
-	options *RedisOptions
+	Client  *redis.Client
+	Options *RedisOptions
 }
