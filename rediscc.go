@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Connect(redisUri string, dbNumber string, options *RedisOptions) (*RedisDataStore, error) {
+func Connect(ctx context.Context, redisUri string, dbNumber string, options *RedisOptions) (*RedisDataStore, error) {
 	redisUrl := fmt.Sprintf("%s/%s", redisUri, dbNumber)
 	opt, err := redis.ParseURL(redisUrl)
 	if err != nil {
@@ -17,35 +17,39 @@ func Connect(redisUri string, dbNumber string, options *RedisOptions) (*RedisDat
 
 	client := redis.NewClient(opt)
 
-	fmt.Printf("You successfully connected to Redis: %s\n", redisUrl)
+	if err := client.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
+	}
+
+	fmt.Printf("Successfully connected to Redis db: %s\n", dbNumber)
 
 	if options == nil {
 		options = &RedisOptions{}
 	}
 
 	redisDataStore := &RedisDataStore{
-		client:  client,
-		options: options,
+		Client:  client,
+		Options: options,
 	}
 
 	return redisDataStore, nil
 }
 
 func (redisDataStore *RedisDataStore) Publish(ctx context.Context, channel string, payload interface{}) error {
-	if redisDataStore.options.Debug {
+	if redisDataStore.Options.Debug {
 		fmt.Println("[LOG] Publish", channel)
 	}
-	if redisDataStore.options.DebugPayload {
+	if redisDataStore.Options.DebugPayload {
 		fmt.Println("[LOG] Payload", payload)
 	}
-	return redisDataStore.client.Publish(ctx, channel, payload).Err()
+	return redisDataStore.Client.Publish(ctx, channel, payload).Err()
 }
 
 func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (string, error) {
-	if redisDataStore.options.Debug {
+	if redisDataStore.Options.Debug {
 		fmt.Println("[LOG] Get", key)
 	}
-	value, err := redisDataStore.client.Get(ctx, key).Result()
+	value, err := redisDataStore.Client.Get(ctx, key).Result()
 	if err != nil {
 		return "", err
 	}
@@ -53,32 +57,24 @@ func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (stri
 }
 
 func (redisDataStore *RedisDataStore) GetRaw(ctx context.Context, key string) *redis.StringCmd {
-	if redisDataStore.options.Debug {
+	if redisDataStore.Options.Debug {
 		fmt.Println("[LOG] GetRaw", key)
 	}
-	return redisDataStore.client.Get(ctx, key)
+	return redisDataStore.Client.Get(ctx, key)
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	if redisDataStore.options.Debug {
-		fmt.Println("[Redis Client]", redisDataStore.client)
+	if redisDataStore.Options.Debug {
 		fmt.Println("[LOG] Set", key, value, expiration)
 	}
-	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
+	return redisDataStore.Client.Set(ctx, key, value, expiration).Err()
 }
 
-func (redisDataStore *RedisDataStore) SetWithExpiration(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	if redisDataStore.options.Debug {
-		fmt.Println("[LOG] SetWithExpiration", key, value, expiration)
+func (redisDataStore *RedisDataStore) Del(ctx context.Context, key string) error {
+	if redisDataStore.Options.Debug {
+		fmt.Println("[LOG] Del", key)
 	}
-	return redisDataStore.client.Set(ctx, key, value, expiration).Err()
-}
-
-func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) error {
-	if redisDataStore.options.Debug {
-		fmt.Println("[LOG] Del", channel)
-	}
-	_, err := redisDataStore.client.Del(ctx, channel).Result()
+	_, err := redisDataStore.Client.Del(ctx, key).Result()
 	if err != nil {
 		return err
 	}
@@ -86,10 +82,10 @@ func (redisDataStore *RedisDataStore) Del(ctx context.Context, channel string) e
 }
 
 func (redisDataStore *RedisDataStore) Keys(ctx context.Context, pattern string) ([]string, error) {
-	if redisDataStore.options.Debug {
+	if redisDataStore.Options.Debug {
 		fmt.Println("[LOG] Keys", pattern)
 	}
-	keys, err := redisDataStore.client.Keys(ctx, pattern).Result()
+	keys, err := redisDataStore.Client.Keys(ctx, pattern).Result()
 	if err != nil {
 		return nil, err
 	}
