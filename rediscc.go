@@ -37,17 +37,17 @@ func Connect(ctx context.Context, redisUri string, dbNumber string, options *Red
 
 func (redisDataStore *RedisDataStore) Publish(ctx context.Context, channel string, payload interface{}) error {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] Publish", channel)
+		fmt.Println("[Rediscc Log] Publish", channel)
 	}
 	if redisDataStore.Options.DebugPayload {
-		fmt.Println("[LOG] Payload", payload)
+		fmt.Println("[Rediscc Log] Payload", payload)
 	}
 	return redisDataStore.Client.Publish(ctx, channel, payload).Err()
 }
 
 func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (string, error) {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] Get", key)
+		fmt.Println("[Rediscc Log] Get", key)
 	}
 	value, err := redisDataStore.Client.Get(ctx, key).Result()
 	if err != nil {
@@ -58,21 +58,21 @@ func (redisDataStore *RedisDataStore) Get(ctx context.Context, key string) (stri
 
 func (redisDataStore *RedisDataStore) GetRaw(ctx context.Context, key string) *redis.StringCmd {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] GetRaw", key)
+		fmt.Println("[Rediscc Log] GetRaw", key)
 	}
 	return redisDataStore.Client.Get(ctx, key)
 }
 
 func (redisDataStore *RedisDataStore) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] Set", key, value, expiration)
+		fmt.Println("[Rediscc Log] Set", key, value, expiration)
 	}
 	return redisDataStore.Client.Set(ctx, key, value, expiration).Err()
 }
 
 func (redisDataStore *RedisDataStore) Del(ctx context.Context, key string) error {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] Del", key)
+		fmt.Println("[Rediscc Log] Del", key)
 	}
 	_, err := redisDataStore.Client.Del(ctx, key).Result()
 	if err != nil {
@@ -83,7 +83,7 @@ func (redisDataStore *RedisDataStore) Del(ctx context.Context, key string) error
 
 func (redisDataStore *RedisDataStore) Keys(ctx context.Context, pattern string) ([]string, error) {
 	if redisDataStore.Options.Debug {
-		fmt.Println("[LOG] Keys", pattern)
+		fmt.Println("[Rediscc Log] Keys", pattern)
 	}
 	keys, err := redisDataStore.Client.Keys(ctx, pattern).Result()
 	if err != nil {
